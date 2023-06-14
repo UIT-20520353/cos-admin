@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "~/components/Header";
 import { AiFillEdit } from "react-icons/ai";
 import { BsFillTrashFill } from "react-icons/bs";
@@ -14,7 +14,7 @@ type IProps = {
   stt: number;
   account: IManageAccount;
   deleteAccount: (id: number) => void;
-  openEditForm: (account: IAccount) => void;
+  openEditForm: (account: IManageAccount) => void;
 };
 
 function RowItem(props: IProps) {
@@ -53,7 +53,7 @@ function ManageAccount() {
   const [isEdit, setIsEdit] = useState<IManageAccount | null>(null);
   const [accounts, setAccounts] = useState<IManageAccount[]>([]);
   const [filteredAccounts, setFilteredAccounts] = useState<IManageAccount[]>([]);
-  const [hosts, setHosts] = useState<IHost>([]);
+  const [hosts, setHosts] = useState<IHost[]>([]);
 
   useEffect(() => {
     handleFetchData();

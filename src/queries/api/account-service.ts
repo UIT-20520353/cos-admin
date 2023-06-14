@@ -10,7 +10,7 @@ export async function getAccountList(): Promise<IManageAccount[]> {
       .rpc("get_account_list")
       .then((response) => response as PostgrestResponse<IManageAccount>);
     if (error) console.error("getAccountList :", error);
-    else return data;
+    else return data ?? [];
   } catch (error) {
     console.error("getAccountList :", error);
   }

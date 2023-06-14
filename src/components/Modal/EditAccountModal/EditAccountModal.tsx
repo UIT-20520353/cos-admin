@@ -48,7 +48,13 @@ function EditAccountModal(props: IProps) {
       allowOutsideClick: false
     }).then((result) => {
       if (result.isConfirmed) {
-        updateAccountInfoById(props.account.id, data.name, data.email, data.phone, data.address).then((res) => {
+        updateAccountInfoById(
+          props.account.id,
+          data.name,
+          data.email,
+          data.phone ? data.phone : "",
+          data.address ? data.address : ""
+        ).then((res) => {
           if (res) {
             Swal.fire({
               position: "center",
