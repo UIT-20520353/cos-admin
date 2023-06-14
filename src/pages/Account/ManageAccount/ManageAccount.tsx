@@ -147,7 +147,7 @@ function ManageAccount() {
       }
     });
   };
-  const openEditForm = (account: IAccount) => {
+  const openEditForm = (account: IManageAccount) => {
     setIsEdit(account);
   };
   const closeEditForm = () => {

@@ -1,4 +1,4 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { userLogin } from "~/pages/Login/login.reducer";
 import { getAccountById, handleLogin } from "~/queries/api/account-service";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -6,7 +6,6 @@ import { ILoginForm } from "~/types/form.type";
 import CryptoJS from "crypto-js";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { RootState } from "~/store/store";
 
 const MyAlert = withReactContent(Swal);
 
