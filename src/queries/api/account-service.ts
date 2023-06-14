@@ -24,7 +24,7 @@ export async function checkAccountExist(username: string): Promise<boolean | und
   }
 }
 
-export async function handleLogin(username: string, password: string): Promise<number> {
+export async function handleLogin(username: string, password: string): Promise<number | undefined> {
   try {
     const { data, error } = await supabase.rpc("handle_login", {
       user_name: username,
@@ -40,7 +40,7 @@ export async function handleLogin(username: string, password: string): Promise<n
   }
 }
 
-export async function getAccountById(id: number): Promise<IAccount[]> {
+export async function getAccountById(id: number): Promise<IAccount[] | undefined> {
   try {
     const { data, error }: PostgrestResponse<IAccount> = await supabase
       .from("accounts")
@@ -56,7 +56,7 @@ export async function getAccountById(id: number): Promise<IAccount[]> {
   }
 }
 
-export async function insertAccount(formData: IAccountForm): Promise<boolean> {
+export async function insertAccount(formData: IAccountForm): Promise<boolean | undefined> {
   try {
     let hashPassword: string;
     if (formData.role === "CANDIDATE") hashPassword = CryptoJS.SHA256("thisinh123").toString();
@@ -87,7 +87,7 @@ export async function insertAccount(formData: IAccountForm): Promise<boolean> {
   }
 }
 
-export async function deleteAccountById(id: number): Promise<boolean> {
+export async function deleteAccountById(id: number): Promise<boolean | undefined> {
   try {
     const { error } = await supabase.from("accounts").delete().eq("id", id);
     if (error) {
@@ -105,7 +105,7 @@ export async function updateAccountInfoById(
   email: string,
   phone: string,
   address: string
-): Promise<IAccount[]> {
+): Promise<IAccount[] | undefined> {
   try {
     const { data, error }: PostgrestResponse<IAccount> = await supabase
       .from("accounts")

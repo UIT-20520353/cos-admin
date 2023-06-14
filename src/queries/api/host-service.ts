@@ -3,7 +3,7 @@ import { PostgrestResponse } from "@supabase/supabase-js";
 import { IHost } from "~/types/host.type";
 import { IHostForm } from "~/types/form.type";
 
-export async function getHostList(): Promise<IHost[]> {
+export async function getHostList(): Promise<IHost[] | undefined> {
   try {
     const { data, error }: PostgrestResponse<IHost> = await supabase
       .from("hosts")
@@ -16,7 +16,7 @@ export async function getHostList(): Promise<IHost[]> {
   }
 }
 
-export async function addHost(formData: IHostForm): Promise<IHost[]> {
+export async function addHost(formData: IHostForm): Promise<IHost[] | undefined> {
   try {
     const { data, error }: PostgrestResponse<IHost> = await supabase
       .from("hosts")
@@ -35,7 +35,7 @@ export async function addHost(formData: IHostForm): Promise<IHost[]> {
   }
 }
 
-export async function deleteHost(id: number): Promise<boolean> {
+export async function deleteHost(id: number): Promise<boolean | undefined> {
   try {
     const { error }: PostgrestResponse<IHost> = await supabase.from("hosts").delete().eq("id", id);
     if (error) {
@@ -47,7 +47,7 @@ export async function deleteHost(id: number): Promise<boolean> {
   }
 }
 
-export async function getHostInfoById(id: number): Promise<IHost[]> {
+export async function getHostInfoById(id: number): Promise<IHost[] | undefined> {
   try {
     const { data, error }: PostgrestResponse<IHost> = await supabase
       .from("hosts")
@@ -61,7 +61,7 @@ export async function getHostInfoById(id: number): Promise<IHost[]> {
   }
 }
 
-export async function updateHostInfoById(id: number, formData: IHostForm): Promise<IHost[]> {
+export async function updateHostInfoById(id: number, formData: IHostForm): Promise<IHost[] | undefined> {
   try {
     const { data, error }: PostgrestResponse<IHost> = await supabase
       .from("hosts")
