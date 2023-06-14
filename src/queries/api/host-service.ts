@@ -37,7 +37,7 @@ export async function addHost(formData: IHostForm): Promise<IHost[] | undefined>
 
 export async function deleteHost(id: number): Promise<boolean | undefined> {
   try {
-    const { error }: PostgrestResponse<IHost> = await supabase.from("hosts").delete().eq("id", id);
+    const { error } = await supabase.from("hosts").delete().eq("id", id);
     if (error) {
       console.error("deleteHost: ", error);
       return false;
