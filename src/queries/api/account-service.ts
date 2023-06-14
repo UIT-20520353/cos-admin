@@ -6,12 +6,14 @@ import CryptoJS from "crypto-js";
 
 export async function getAccountList(): Promise<IManageAccount[]> {
   try {
+    let result: IManageAccount[] = [];
     const { data, error }: PostgrestResponse<IManageAccount> = await supabase
       .rpc("get_account_list")
       .then((response) => response as PostgrestResponse<IManageAccount>);
     if (error) console.error("getAccountList :", error);
-    else return data;
-    return [];
+    else result = data;
+
+    return result;
   } catch (error) {
     console.error("getAccountList :", error);
   }

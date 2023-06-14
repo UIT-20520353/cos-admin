@@ -5,7 +5,7 @@ import { BsFillTrashFill } from "react-icons/bs";
 import AddAccountModal from "~/components/Modal/AddAccountModal";
 import { deleteAccountById, getAccountList } from "~/queries/api/account-service";
 import Swal from "sweetalert2";
-import { IAccount, IManageAccount } from "~/types/account.type";
+import { IManageAccount } from "~/types/account.type";
 import { IHost } from "~/types/host.type";
 import { getHostList } from "~/queries/api/host-service";
 import EditAccountModal from "~/components/Modal/EditAccountModal";
