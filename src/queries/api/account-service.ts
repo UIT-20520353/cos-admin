@@ -4,7 +4,7 @@ import { PostgrestResponse } from "@supabase/supabase-js";
 import { IAccountForm } from "~/types/form.type";
 import CryptoJS from "crypto-js";
 
-export async function getAccountList(): Promise<IManageAccount[]> {
+export async function getAccountList(): Promise<IManageAccount[] | undefined> {
   try {
     const { data, error }: PostgrestResponse<IManageAccount> = await supabase
       .rpc("get_account_list")
@@ -13,17 +13,15 @@ export async function getAccountList(): Promise<IManageAccount[]> {
     else return data;
   } catch (error) {
     console.error("getAccountList :", error);
-    return [];
   }
 }
 
-export async function checkAccountExist(username: string): Promise<boolean> {
+export async function checkAccountExist(username: string): Promise<boolean | undefined> {
   const { data, error } = await supabase.rpc("check_exist", { user_name: username });
   if (error) console.error(error);
   else {
     return !!data;
   }
-  return false;
 }
 
 export async function handleLogin(username: string, password: string): Promise<number> {
