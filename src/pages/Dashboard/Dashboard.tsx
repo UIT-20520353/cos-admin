@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Header from "../../components/Header";
-import Rankings from "~/components/Rankings";
 import Swal from "sweetalert2";
 import { getContestListDashboard, getContestsForRanking } from "~/queries/api/contest-service";
 import { IContestDashboard, IContestForRanking } from "~/types/contest.type";

@@ -25,7 +25,7 @@ function DetailTestcase(props: IProps) {
     setValue("input", props.testcase.input);
     setValue("output", props.testcase.output);
   }, []);
-  const onSubmit: SubmitHandler<ITestcase> = (data) => {
+  const onSubmit: SubmitHandler<ITestcaseForm> = (data) => {
     Swal.fire({
       title: "Cập nhật thông tin testcase",
       text: `Xác nhận sẽ cập nhật các thông tin của testcase?`,
