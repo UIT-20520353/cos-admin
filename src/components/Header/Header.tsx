@@ -22,7 +22,7 @@ function Header(props: IProps) {
   return (
     <div
       className={
-        "flex h-16 w-full flex-row items-center justify-between border-b border-gray-200 bg-[#efefef] px-8 shadow-md sticky top-0"
+        "flex h-16 w-full z-20 flex-row items-center justify-between border-b border-gray-200 bg-[#efefef] px-8 shadow-md sticky top-0"
       }
     >
       <div>

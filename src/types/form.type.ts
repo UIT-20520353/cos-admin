@@ -20,3 +20,15 @@ export type IHostForm = {
   phone: string;
   address: string;
 };
+
+export type IProblemForm = {
+  name: string;
+  detail: string;
+  example_input: string;
+  example_output: string;
+};
+
+export type ITestcaseForm = {
+  input: string;
+  output: string;
+}

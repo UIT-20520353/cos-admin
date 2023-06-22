@@ -1,11 +1,70 @@
 import Header from "~/components/Header";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddProblemModal from "~/components/Modal/AddProblemModal";
 import { AiFillEdit } from "react-icons/ai";
 import { BsFillTrashFill } from "react-icons/bs";
+import { IProblem } from "~/types/problem.type";
+import { getProblemList } from "~/queries/api/problem-service";
+import Swal from "sweetalert2";
+import { NavLink } from "react-router-dom";
+
+type IProps = {
+  stt: number;
+  problem: IProblem;
+};
+
+function RowItem(props: IProps) {
+  return (
+    <tr className={"border-b bg-white"}>
+      <th
+        scope={"row"}
+        className={"whitespace-nowrap border border-gray-300 px-6 py-4 text-center font-medium text-gray-900"}
+      >
+        {props.stt + 1}
+      </th>
+      <td className={"border border-gray-300 px-6 py-4 text-center"}>{props.problem.name}</td>
+      <td className={"border border-gray-300 px-6 py-4 text-center"}>5</td>
+      <td className={"border border-gray-300 px-6 py-4 text-center flex flex-row items-center justify-center"}>
+        <NavLink
+          className={"bg-blue-700 inline-block p-2 rounded-md hover:bg-blue-600 duration-300 mr-2"}
+          to={`/problem/detail/${props.problem.id}`}
+        >
+          <AiFillEdit className={"w-7 h-7 text-white"} />
+        </NavLink>
+        <button className={"bg-red-700 inline-block p-2 rounded-md hover:bg-red-600 duration-300 ml-2"}>
+          <BsFillTrashFill className={"w-7 h-7 text-white"} />
+        </button>
+      </td>
+    </tr>
+  );
+}
 
 function ManageProblem() {
-  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [problems, setProblems] = useState<IProblem[]>([]);
+
+  useEffect(() => {
+    handleFetchData();
+  }, []);
+
+  const handleFetchData = async () => {
+    Swal.fire({
+      position: "center",
+      title: "Đang lấy dữ liệu",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen() {
+        Swal.showLoading();
+      }
+    });
+
+    const data = await getProblemList();
+    if (data) {
+      setProblems(data ?? []);
+    }
+
+    Swal.close();
+  };
 
   const onChangeValue = (value: string | null) => {
     if (value === null) return;
@@ -15,6 +74,7 @@ function ManageProblem() {
   };
   const closeModal = () => {
     setIsOpenModal(false);
+    handleFetchData();
   };
 
   return (
@@ -51,60 +111,9 @@ function ManageProblem() {
             </tr>
           </thead>
           <tbody>
-            <tr className={"border-b bg-white"}>
-              <th
-                scope={"row"}
-                className={"whitespace-nowrap border border-gray-300 px-6 py-4 text-center font-medium text-gray-900"}
-              >
-                1
-              </th>
-              <td className={"border border-gray-300 px-6 py-4 text-center"}>Tính tổng</td>
-              <td className={"border border-gray-300 px-6 py-4 text-center"}>5</td>
-              <td className={"border border-gray-300 px-6 py-4 text-center"}>
-                <button className={"bg-blue-700 p-2 rounded-md hover:bg-blue-600 duration-300 mr-2"}>
-                  <AiFillEdit className={"w-7 h-7 text-white"} />
-                </button>
-                <button className={"bg-red-700 p-2 rounded-md hover:bg-red-600 duration-300 ml-2"}>
-                  <BsFillTrashFill className={"w-7 h-7 text-white"} />
-                </button>
-              </td>
-            </tr>
-            <tr className={"border-b bg-white"}>
-              <th
-                scope={"row"}
-                className={"whitespace-nowrap border border-gray-300 px-6 py-4 text-center font-medium text-gray-900"}
-              >
-                2
-              </th>
-              <td className={"border border-gray-300 px-6 py-4 text-center"}>Đường đi ngắn nhất</td>
-              <td className={"border border-gray-300 px-6 py-4 text-center"}>2</td>
-              <td className={"border border-gray-300 px-6 py-4 text-center"}>
-                <button className={"bg-blue-700 p-2 rounded-md hover:bg-blue-600 duration-300 mr-2"}>
-                  <AiFillEdit className={"w-7 h-7 text-white"} />
-                </button>
-                <button className={"bg-red-700 p-2 rounded-md hover:bg-red-600 duration-300 ml-2"}>
-                  <BsFillTrashFill className={"w-7 h-7 text-white"} />
-                </button>
-              </td>
-            </tr>
-            <tr className={"border-b bg-white"}>
-              <th
-                scope={"row"}
-                className={"whitespace-nowrap border border-gray-300 px-6 py-4 text-center font-medium text-gray-900"}
-              >
-                3
-              </th>
-              <td className={"border border-gray-300 px-6 py-4 text-center"}>Tổng mảng</td>
-              <td className={"border border-gray-300 px-6 py-4 text-center"}>12</td>
-              <td className={"border border-gray-300 px-6 py-4 text-center"}>
-                <button className={"bg-blue-700 p-2 rounded-md hover:bg-blue-600 duration-300 mr-2"}>
-                  <AiFillEdit className={"w-7 h-7 text-white"} />
-                </button>
-                <button className={"bg-red-700 p-2 rounded-md hover:bg-red-600 duration-300 ml-2"}>
-                  <BsFillTrashFill className={"w-7 h-7 text-white"} />
-                </button>
-              </td>
-            </tr>
+            {problems.map((problem, index) => (
+              <RowItem key={`problem-${problem.id}`} stt={index} problem={problem} />
+            ))}
           </tbody>
         </table>
       </div>

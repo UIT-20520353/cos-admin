@@ -10,6 +10,9 @@ import Dashboard from "~/pages/Dashboard";
 import ManageAccount from "~/pages/Account/ManageAccount";
 import ManageHost from "~/pages/Host/ManageHost";
 import ManageProblem from "~/pages/Problem/ManageProblem";
+import DetailProblem from "~/pages/Problem/DetailProblem";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const user = useSelector((state: RootState) => state.user);
@@ -31,8 +34,10 @@ function App() {
           <Route path={"manage-account"} element={<ManageAccount />} />
           <Route path={"manage-host"} element={<ManageHost />} />
           <Route path={"manage-problem"} element={<ManageProblem />} />
+          <Route path={"problem/detail/:id"} element={<DetailProblem />} />
         </Route>
       </Routes>
+      <ToastContainer pauseOnFocusLoss={false} pauseOnHover={false} closeOnClick={false} draggable={false} />
     </div>
   );
 }

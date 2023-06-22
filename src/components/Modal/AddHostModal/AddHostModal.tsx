@@ -101,11 +101,11 @@ function AddHostModal(props: IProps) {
 
   return (
     <ModalPortal>
-      <div className={"fixed left-0 top-0 h-screen w-full bg-black opacity-50"}></div>
+      <div className={"fixed z-30 left-0 top-0 h-screen w-full bg-black opacity-50"}></div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className={
-          "fixed left-1/2 top-1/2 max-h-[95%] w-3/5 -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-md bg-white p-5"
+          "fixed left-1/2 top-1/2 z-40 max-h-[95%] w-3/5 -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-md bg-white p-5"
         }
       >
         <p className={"mb-5 text-lg font-semibold"}>
