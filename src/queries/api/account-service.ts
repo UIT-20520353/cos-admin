@@ -49,6 +49,10 @@ export async function handleLogin(username: string, password: string): Promise<I
     }
   } catch (error) {
     console.error("handleLogin :", error);
+    return {
+      id: -1,
+      name: ""
+    };
   }
 }
 
