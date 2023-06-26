@@ -24,7 +24,7 @@ export async function checkAccountExist(username: string): Promise<boolean | und
   }
 }
 
-export async function handleLogin(username: string, password: string): Promise<ISimpleAccount | undefined> {
+export async function handleLogin(username: string, password: string): Promise<ISimpleAccount> {
   try {
     const { data, error }: PostgrestResponse<ISimpleAccount> = await supabase
       .rpc("handle_login", {
@@ -33,8 +33,13 @@ export async function handleLogin(username: string, password: string): Promise<I
         username_login: username
       })
       .then((response) => response as PostgrestResponse<ISimpleAccount>);
-    if (error) console.error("handleLogin :", error);
-    else {
+    if (error) {
+      console.error("handleLogin :", error);
+      return {
+        id: -1,
+        name: ""
+      };
+    } else {
       if (data && data.length !== 0) return data[0];
       else
         return {
