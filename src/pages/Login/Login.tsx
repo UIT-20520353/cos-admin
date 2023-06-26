@@ -6,27 +6,37 @@ import { ILoginForm } from "~/types/form.type";
 import CryptoJS from "crypto-js";
 import { toast } from "react-toastify";
 import LoadingModal from "~/components/Modal/LoadingModal";
-import { useLoading } from "~/utils/useLoading";
 import { useMutation } from "@tanstack/react-query";
 import { ISimpleAccount } from "~/types/account.type";
 
 function Login() {
   const dispatch = useDispatch();
   const { register, handleSubmit } = useForm<ILoginForm>();
-  const loading = useLoading();
 
-  const { mutate: login } = useMutation({
+  const { mutate: login, isLoading } = useMutation({
     mutationFn: (body: ILoginForm) => {
       const hashPassword = CryptoJS.SHA256(body.password).toString();
       return handleLogin(body.username, hashPassword);
     },
     onSuccess: (data: ISimpleAccount) => {
+      if (data.id === -1) {
+        toast("Tên đăng nhập hoặc mật khẩu không chính xác", {
+          position: "bottom-right",
+          autoClose: 3000,
+          closeOnClick: false,
+          type: "error"
+        });
+        return;
+      }
       dispatch(userLogin({ id: data.id, name: data.name }));
       sessionStorage.setItem("id", data.id.toString());
       sessionStorage.setItem("name", data.name);
-    },
-    onError: (error) => {
-      console.error(error);
+      toast("Đăng nhập thành công", {
+        position: "bottom-right",
+        autoClose: 3000,
+        closeOnClick: false,
+        type: "success"
+      });
     }
   });
 
@@ -50,26 +60,10 @@ function Login() {
       return;
     }
 
-    loading.startLoading();
-
     login(data);
 
-    loading.stopLoading();
-
-    if (sessionStorage.getItem("id"))
-      toast("Đăng nhập thành công", {
-        position: "bottom-right",
-        autoClose: 3000,
-        closeOnClick: false,
-        type: "success"
-      });
-    else
-      toast("Tên đăng nhập hoặc mật khẩu không chính xác", {
-        position: "bottom-right",
-        autoClose: 3000,
-        closeOnClick: false,
-        type: "error"
-      });
+    // if (sessionStorage.getItem("id") != null)
+    // else
   };
 
   return (
@@ -128,7 +122,7 @@ function Login() {
           </button>
         </div>
       </form>
-      {loading.isLoading && <LoadingModal title={"Đang xử lý đăng nhập"} />}
+      {isLoading && <LoadingModal title={"Đang xử lý đăng nhập"} />}
     </div>
   );
 }
