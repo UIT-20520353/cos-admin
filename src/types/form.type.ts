@@ -1,7 +1,7 @@
-export type ILoginForm = {
+export interface ILoginForm {
   username: string;
   password: string;
-};
+}
 
 export type IAccountForm = {
   name: string;
@@ -31,4 +31,4 @@ export type IProblemForm = {
 export type ITestcaseForm = {
   input: string;
   output: string;
-}
+};

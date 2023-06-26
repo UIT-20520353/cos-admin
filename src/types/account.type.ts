@@ -19,3 +19,8 @@ export type IManageAccount = {
   host_id: number | null;
   role_name: string;
 };
+
+export interface ISimpleAccount {
+  id: number;
+  name: string;
+}

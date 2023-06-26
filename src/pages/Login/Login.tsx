@@ -1,17 +1,34 @@
 import { useDispatch } from "react-redux";
 import { userLogin } from "~/pages/Login/login.reducer";
-import { getAccountById, handleLogin } from "~/queries/api/account-service";
+import { handleLogin } from "~/queries/api/account-service";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { ILoginForm } from "~/types/form.type";
 import CryptoJS from "crypto-js";
 import { toast } from "react-toastify";
 import LoadingModal from "~/components/Modal/LoadingModal";
 import { useLoading } from "~/utils/useLoading";
+import { useMutation } from "@tanstack/react-query";
+import { ISimpleAccount } from "~/types/account.type";
 
 function Login() {
   const dispatch = useDispatch();
   const { register, handleSubmit } = useForm<ILoginForm>();
   const loading = useLoading();
+
+  const { mutate: login } = useMutation({
+    mutationFn: (body: ILoginForm) => {
+      const hashPassword = CryptoJS.SHA256(body.password).toString();
+      return handleLogin(body.username, hashPassword);
+    },
+    onSuccess: (data: ISimpleAccount) => {
+      dispatch(userLogin({ id: data.id, name: data.name }));
+      sessionStorage.setItem("id", data.id.toString());
+      sessionStorage.setItem("name", data.name);
+    },
+    onError: (error) => {
+      console.error(error);
+    }
+  });
 
   const onSubmit: SubmitHandler<ILoginForm> = async (data) => {
     if (!data.username) {
@@ -35,17 +52,7 @@ function Login() {
 
     loading.startLoading();
 
-    const hashPassword = CryptoJS.SHA256(data.password).toString();
-    const result = await handleLogin(data.username, hashPassword);
-
-    if (result) {
-      const account = await getAccountById(result);
-      if (account && account.length !== 0) {
-        dispatch(userLogin({ id: result, name: account[0].name }));
-        sessionStorage.setItem("id", result.toString());
-        sessionStorage.setItem("name", account[0].name);
-      }
-    }
+    login(data);
 
     loading.stopLoading();
 

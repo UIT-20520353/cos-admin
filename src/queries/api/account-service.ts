@@ -1,5 +1,5 @@
 import supabase from "~/queries/supabase";
-import { IAccount, IManageAccount } from "~/types/account.type";
+import { IAccount, IManageAccount, ISimpleAccount } from "~/types/account.type";
 import { PostgrestResponse } from "@supabase/supabase-js";
 import { IAccountForm } from "~/types/form.type";
 import CryptoJS from "crypto-js";
@@ -24,16 +24,23 @@ export async function checkAccountExist(username: string): Promise<boolean | und
   }
 }
 
-export async function handleLogin(username: string, password: string): Promise<number | undefined> {
+export async function handleLogin(username: string, password: string): Promise<ISimpleAccount | undefined> {
   try {
-    const { data, error } = await supabase.rpc("handle_login", {
-      user_name: username,
-      input_password: password,
-      role: 1
-    });
+    const { data, error }: PostgrestResponse<ISimpleAccount> = await supabase
+      .rpc("handle_login", {
+        password_login: password,
+        role_login: 1,
+        username_login: username
+      })
+      .then((response) => response as PostgrestResponse<ISimpleAccount>);
     if (error) console.error("handleLogin :", error);
     else {
-      return data;
+      if (data && data.length !== 0) return data[0];
+      else
+        return {
+          id: -1,
+          name: ""
+        };
     }
   } catch (error) {
     console.error("handleLogin :", error);
