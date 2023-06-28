@@ -1,5 +1,5 @@
 import ModalPortal from "~/components/ModalPortal";
-import { IManageAccount } from "~/types/account.type";
+import { IAccount, IManageAccount } from "~/types/account.type";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { IAccountForm } from "~/types/form.type";
 import { useEffect } from "react";
@@ -64,8 +64,8 @@ function EditAccountModal(props: IProps) {
           address: data.address ? data.address : ""
         };
         updateAccount(body, {
-          onSuccess: (response: boolean) => {
-            if (response) {
+          onSuccess: (response: IAccount) => {
+            if (response.id !== -1) {
               toast("Cập nhật thông tin tài khoản thành công", {
                 type: "success",
                 position: "bottom-right",
