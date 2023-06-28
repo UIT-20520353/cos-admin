@@ -6,6 +6,8 @@ import { IHost } from "~/types/host.type";
 import Swal from "sweetalert2";
 import { checkAccountExist, insertAccount } from "~/queries/api/account-service";
 import { isEmailValid, isPhoneNumberValid, isUsernameValid } from "~/utils/ValidateForm";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 type IProps = {
   hosts: IHost[];
@@ -19,22 +21,29 @@ function AddAccountModal(props: IProps) {
     formState: { errors }
   } = useForm<IAccountForm>();
   const [role, setRole] = useState<string>("HOST");
+  const { mutateAsync: checkAccount } = useMutation({
+    mutationFn: (body: string) => {
+      return checkAccountExist(body);
+    }
+  });
+  const { mutate: addAccount } = useMutation({
+    mutationFn: (body: IAccountForm) => {
+      return insertAccount(body);
+    }
+  });
 
   const handleRoleChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setRole(event.target.value);
   };
 
   const onSubmit: SubmitHandler<IAccountForm> = async (data) => {
-    const isExist = await checkAccountExist(data.username);
+    const isExist = await checkAccount(data.username);
     if (isExist) {
-      Swal.fire({
-        position: "center",
-        titleText: "Tên đăng nhập đã được sử dụng",
-        icon: "error",
-        showConfirmButton: true,
-        confirmButtonText: "Đồng ý",
-        allowOutsideClick: false,
-        timer: 3000
+      toast("Tên đăng nhập đã được sử dụng", {
+        type: "error",
+        position: "bottom-right",
+        autoClose: 3000,
+        closeOnClick: false
       });
       return;
     }
@@ -50,30 +59,24 @@ function AddAccountModal(props: IProps) {
       allowOutsideClick: false
     }).then((result) => {
       if (result.isConfirmed) {
-        insertAccount(data).then((response) => {
-          if (response) {
-            Swal.fire({
-              position: "center",
-              titleText: "Thêm tài khoản thành công",
-              icon: "success",
-              allowOutsideClick: false,
-              showConfirmButton: true,
-              confirmButtonText: "Đồng ý",
-              timer: 3000,
-              didClose() {
-                props.closeModal();
-              }
-            });
-          } else {
-            Swal.fire({
-              position: "center",
-              titleText: "Xảy ra lỗi khi thêm tài khoản",
-              icon: "error",
-              allowOutsideClick: false,
-              showConfirmButton: true,
-              confirmButtonText: "Đồng ý",
-              timer: 3000
-            });
+        addAccount(data, {
+          onSuccess: (response: boolean) => {
+            if (response) {
+              toast("Thêm tài khoản thành công", {
+                type: "success",
+                position: "bottom-right",
+                autoClose: 3000,
+                closeOnClick: false
+              });
+              props.closeModal();
+            } else {
+              toast("Xảy ra lỗi khi thêm tài khoản", {
+                type: "error",
+                position: "bottom-right",
+                autoClose: 3000,
+                closeOnClick: false
+              });
+            }
           }
         });
       }

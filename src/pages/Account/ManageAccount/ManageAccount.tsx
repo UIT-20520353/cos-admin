@@ -9,7 +9,8 @@ import { getHostList } from "~/queries/api/host-service";
 import EditAccountModal from "~/components/Modal/EditAccountModal";
 import { Header } from "~/components";
 import { ManageAccountSkeleton } from "~/skeletons";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 type IProps = {
   stt: number;
@@ -50,20 +51,22 @@ function RowItem(props: IProps) {
 }
 
 function ManageAccount() {
+  const queryClient = useQueryClient();
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<IManageAccount | null>(null);
 
-  const {
-    data: accounts,
-    isLoading: accountLoading,
-    refetch: accountRefetch
-  } = useQuery({
+  const { data: accounts, isLoading: accountLoading } = useQuery({
     queryKey: ["account-list"],
     queryFn: getAccountList
   });
   const { data: hosts, isLoading: hostLoading } = useQuery({
     queryKey: ["host-list"],
     queryFn: getHostList
+  });
+  const { mutate: deleteAccount } = useMutation({
+    mutationFn: (body: number) => {
+      return deleteAccountById(body);
+    }
   });
 
   const onChangeValue = (value: string | null) => {
@@ -88,9 +91,8 @@ function ManageAccount() {
     setIsOpenModal(true);
   };
   const closeModal = () => {
+    queryClient.invalidateQueries({ queryKey: ["account-list"] });
     setIsOpenModal(false);
-    accountRefetch();
-    // handleFetchData();
   };
   const handleDeleteAccount = (id: number) => {
     Swal.fire({
@@ -104,30 +106,24 @@ function ManageAccount() {
       allowOutsideClick: false
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteAccountById(id).then((response) => {
-          if (response) {
-            Swal.fire({
-              position: "center",
-              titleText: "Xóa tài khoán thành công",
-              icon: "success",
-              allowOutsideClick: false,
-              showConfirmButton: true,
-              confirmButtonText: "Đồng ý",
-              timer: 3000,
-              didClose() {
-                // handleFetchData();
-              }
-            });
-          } else {
-            Swal.fire({
-              position: "center",
-              titleText: "Xảy ra lỗi khi xóa",
-              icon: "error",
-              allowOutsideClick: false,
-              showConfirmButton: true,
-              confirmButtonText: "Đồng ý",
-              timer: 3000
-            });
+        deleteAccount(id, {
+          onSuccess: (response: boolean) => {
+            if (response) {
+              toast("Xóa tài khoán thành công", {
+                type: "success",
+                position: "bottom-right",
+                autoClose: 3000,
+                closeOnClick: false
+              });
+              queryClient.invalidateQueries({ queryKey: ["account-list"] });
+            } else {
+              toast("Xảy ra lỗi khi xóa tài khoản", {
+                type: "error",
+                position: "bottom-right",
+                autoClose: 3000,
+                closeOnClick: false
+              });
+            }
           }
         });
       }
@@ -137,8 +133,8 @@ function ManageAccount() {
     setIsEdit(account);
   };
   const closeEditForm = () => {
+    queryClient.invalidateQueries({ queryKey: ["account-list"] });
     setIsEdit(null);
-    // handleFetchData();
   };
 
   return (
@@ -192,7 +188,7 @@ function ManageAccount() {
         </div>
       )}
       {isOpenModal && <AddAccountModal hosts={hosts ?? []} closeModal={closeModal} />}
-      {isEdit && <EditAccountModal account={isEdit} closeModal={closeEditForm} />}
+      {isEdit && <EditAccountModal hosts={hosts ?? []} account={isEdit} closeModal={closeEditForm} />}
     </div>
   );
 }

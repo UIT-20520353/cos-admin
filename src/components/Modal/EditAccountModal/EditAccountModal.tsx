@@ -4,11 +4,14 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { IAccountForm } from "~/types/form.type";
 import { useEffect } from "react";
 import { isEmailValid, isPhoneNumberValid } from "~/utils/ValidateForm";
-import { getHostInfoById } from "~/queries/api/host-service";
 import Swal from "sweetalert2";
 import { updateAccountInfoById } from "~/queries/api/account-service";
+import { IHost } from "~/types/host.type";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 type IProps = {
+  hosts: IHost[];
   account: IManageAccount;
   closeModal: () => void;
 };
@@ -21,14 +24,19 @@ function EditAccountModal(props: IProps) {
     setValue
   } = useForm<IAccountForm>();
 
-  useEffect(() => {
-    if (props.account.host_id !== null)
-      getHostInfoById(props.account.host_id).then((response) => {
-        if (response && response.length !== 0) {
-          setValue("host_name", response[0].name);
-        }
-      });
+  const { mutate: updateAccount } = useMutation({
+    mutationFn: (body: { id: number; name: string; email: string; phone: string; address: string }) => {
+      return updateAccountInfoById(body.id, body.name, body.email, body.phone, body.address);
+    }
+  });
 
+  useEffect(() => {
+    props.hosts.forEach((host) => {
+      if (host.id === props.account.host_id) {
+        setValue("host_name", host.name);
+        return;
+      }
+    });
     setValue("name", props.account.name);
     setValue("email", props.account.email);
     setValue("phone", props.account.phone);
@@ -48,26 +56,31 @@ function EditAccountModal(props: IProps) {
       allowOutsideClick: false
     }).then((result) => {
       if (result.isConfirmed) {
-        updateAccountInfoById(
-          props.account.id,
-          data.name,
-          data.email,
-          data.phone ? data.phone : "",
-          data.address ? data.address : ""
-        ).then((res) => {
-          if (res) {
-            Swal.fire({
-              position: "center",
-              titleText: "Cập nhật thông tin tài khoản thành công",
-              icon: "success",
-              allowOutsideClick: false,
-              showConfirmButton: true,
-              confirmButtonText: "Đồng ý",
-              timer: 3000,
-              didClose() {
-                props.closeModal();
-              }
-            });
+        const body = {
+          id: props.account.id,
+          name: data.name,
+          email: data.email,
+          phone: data.phone ? data.phone : "",
+          address: data.address ? data.address : ""
+        };
+        updateAccount(body, {
+          onSuccess: (response: boolean) => {
+            if (response) {
+              toast("Cập nhật thông tin tài khoản thành công", {
+                type: "success",
+                position: "bottom-right",
+                autoClose: 3000,
+                closeOnClick: false
+              });
+              props.closeModal();
+            } else {
+              toast("Xảy ra lỗi khi cập nhật thông tin tài khoản", {
+                type: "error",
+                position: "bottom-right",
+                autoClose: 3000,
+                closeOnClick: false
+              });
+            }
           }
         });
       }

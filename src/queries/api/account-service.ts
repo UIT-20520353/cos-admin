@@ -22,11 +22,18 @@ export async function getAccountList(): Promise<IManageAccount[]> {
   }
 }
 
-export async function checkAccountExist(username: string): Promise<boolean | undefined> {
-  const { data, error } = await supabase.rpc("check_exist", { user_name: username });
-  if (error) console.error(error);
-  else {
-    return !!data;
+export async function checkAccountExist(username: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.rpc("check_exist", { user_name: username });
+    if (error) {
+      console.error(error);
+      return false;
+    } else {
+      return !!data;
+    }
+  } catch (error) {
+    console.error("checkAccountExist: ", error);
+    return false;
   }
 }
 
@@ -73,7 +80,7 @@ export async function getAccountById(id: number): Promise<IAccount[] | undefined
   }
 }
 
-export async function insertAccount(formData: IAccountForm): Promise<boolean | undefined> {
+export async function insertAccount(formData: IAccountForm): Promise<boolean> {
   try {
     let hashPassword: string;
     if (formData.role === "CANDIDATE") hashPassword = CryptoJS.SHA256("thisinh123").toString();
@@ -101,10 +108,11 @@ export async function insertAccount(formData: IAccountForm): Promise<boolean | u
     }
   } catch (error) {
     console.error("insertAccount :", error);
+    return false;
   }
 }
 
-export async function deleteAccountById(id: number): Promise<boolean | undefined> {
+export async function deleteAccountById(id: number): Promise<boolean> {
   try {
     const { error } = await supabase.from("accounts").delete().eq("id", id);
     if (error) {
@@ -113,6 +121,7 @@ export async function deleteAccountById(id: number): Promise<boolean | undefined
     } else return true;
   } catch (error) {
     console.error("deleteAccountById", error);
+    return false;
   }
 }
 
@@ -122,7 +131,18 @@ export async function updateAccountInfoById(
   email: string,
   phone: string,
   address: string
-): Promise<IAccount[] | undefined> {
+): Promise<IAccount> {
+  const failResult: IAccount = {
+    id: -1,
+    name: "",
+    username: "",
+    password: "",
+    email: null,
+    phone: null,
+    address: null,
+    role_id: -1,
+    host_id: null
+  };
   try {
     const { data, error }: PostgrestResponse<IAccount> = await supabase
       .from("accounts")
@@ -136,9 +156,15 @@ export async function updateAccountInfoById(
       .select("*")
       .then((response) => response as PostgrestResponse<IAccount>);
 
-    if (error) console.error("updateAccountInfoById: ", error);
-    else return data;
+    if (error) {
+      console.error("updateAccountInfoById: ", error);
+      return failResult;
+    } else {
+      if (data && data.length !== 0) return data[0];
+      else return failResult;
+    }
   } catch (error) {
     console.error("updateAccountInfoById: ", error);
+    return failResult;
   }
 }

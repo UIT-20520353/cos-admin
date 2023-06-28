@@ -53,17 +53,32 @@ export async function deleteHost(id: number): Promise<boolean | undefined> {
   }
 }
 
-export async function getHostInfoById(id: number): Promise<IHost[] | undefined> {
+export async function getHostInfoById(id: number | null): Promise<IHost> {
+  const failResult: IHost = {
+    id: -1,
+    name: "",
+    address: "",
+    phone: "",
+    email: ""
+  };
+
   try {
+    if (!id) return failResult;
     const { data, error }: PostgrestResponse<IHost> = await supabase
       .from("hosts")
       .select("*")
       .eq("id", id)
       .then((response) => response as PostgrestResponse<IHost>);
-    if (error) console.error("getHostList: ", error);
-    else return data;
+    if (error) {
+      console.error("getHostList: ", error);
+      return failResult;
+    } else {
+      if (data && data.length !== 0) return data[0];
+      else return failResult;
+    }
   } catch (error) {
     console.error("getHostList: ", error);
+    return failResult;
   }
 }
 
