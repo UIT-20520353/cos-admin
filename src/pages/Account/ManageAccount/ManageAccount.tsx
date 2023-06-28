@@ -59,13 +59,11 @@ function ManageAccount() {
     refetch: accountRefetch
   } = useQuery({
     queryKey: ["account-list"],
-    queryFn: getAccountList,
-    keepPreviousData: true
+    queryFn: getAccountList
   });
   const { data: hosts, isLoading: hostLoading } = useQuery({
     queryKey: ["host-list"],
-    queryFn: getHostList,
-    keepPreviousData: true
+    queryFn: getHostList
   });
 
   const onChangeValue = (value: string | null) => {
@@ -193,7 +191,7 @@ function ManageAccount() {
           </table>
         </div>
       )}
-      {isOpenModal && <AddAccountModal hosts={hosts} closeModal={closeModal} />}
+      {isOpenModal && <AddAccountModal hosts={hosts ?? []} closeModal={closeModal} />}
       {isEdit && <EditAccountModal account={isEdit} closeModal={closeEditForm} />}
     </div>
   );
