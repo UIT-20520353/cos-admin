@@ -30,7 +30,7 @@ function ManageAccountSkeleton() {
           <div className={"w-32 bg-gray-200 h-5"}></div>
           <div className={"w-32 bg-gray-200 h-5"}></div>
         </div>
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((item, index) => (
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((_, index) => (
           <RowItem key={`table-row-${index}`} />
         ))}
       </div>

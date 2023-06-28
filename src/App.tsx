@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Login from "~/pages/Login";
 import MainPage from "~/pages/MainPage";
 import "./App.css";
@@ -9,7 +9,7 @@ import ManageProblem from "~/pages/Problem/ManageProblem";
 import DetailProblem from "~/pages/Problem/DetailProblem";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ISimpleAccount } from "~/types/account.type";
 
 function App() {
@@ -20,7 +20,7 @@ function App() {
     if (sessionStorage.getItem("id")) {
       const temp: ISimpleAccount = {
         id: Number(sessionStorage.getItem("id")),
-        name: sessionStorage.getItem("name")
+        name: sessionStorage.getItem("name") ?? ""
       };
       setAuth(temp);
     }
@@ -41,9 +41,7 @@ function App() {
       <Routes>
         <Route
           path={"/"}
-          element={
-            auth ? <MainPage auth={auth} handleLogout={handleLogout} /> : <Login handleSetAuth={handleSetAuth} />
-          }
+          element={auth ? <MainPage handleLogout={handleLogout} /> : <Login handleSetAuth={handleSetAuth} />}
         >
           <Route index={true} element={<Dashboard />} />
           <Route path={"manage-account"} element={<ManageAccount />} />

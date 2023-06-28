@@ -10,7 +10,6 @@ import EditAccountModal from "~/components/Modal/EditAccountModal";
 import { Header } from "~/components";
 import { ManageAccountSkeleton } from "~/skeletons";
 import { useQuery } from "@tanstack/react-query";
-import { IHost } from "~/types/host.type";
 
 type IProps = {
   stt: number;

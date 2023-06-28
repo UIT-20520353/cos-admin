@@ -1,5 +1,5 @@
 import logo from "~/assets/transparent-logo.svg";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
 import { MdContentPaste, MdOutlineSupervisorAccount } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
