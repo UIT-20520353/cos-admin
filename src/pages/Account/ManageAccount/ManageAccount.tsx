@@ -58,12 +58,12 @@ function ManageAccount() {
     data: accounts,
     isLoading: accountLoading,
     refetch: accountRefetch
-  } = useQuery<IManageAccount[]>({
+  } = useQuery({
     queryKey: ["account-list"],
     queryFn: getAccountList,
     keepPreviousData: true
   });
-  const { data: hosts, isLoading: hostLoading } = useQuery<IHost[]>({
+  const { data: hosts, isLoading: hostLoading } = useQuery({
     queryKey: ["host-list"],
     queryFn: getHostList,
     keepPreviousData: true
