@@ -3,15 +3,16 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
 import { MdContentPaste, MdOutlineSupervisorAccount } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
-import { useDispatch } from "react-redux";
-import { userLogout } from "~/pages/Login/login.reducer";
 import { GrOrganization } from "react-icons/gr";
 
 const icons = [RxDashboard, MdOutlineSupervisorAccount, GrOrganization, MdContentPaste];
 
-function SideBar() {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+interface SidebarProps {
+  handleLogout: () => void;
+}
+
+function SideBar(props: SidebarProps) {
+  // const navigate = useNavigate();
 
   const menus: { id: number; title: string; address: string }[] = [
     {
@@ -35,12 +36,11 @@ function SideBar() {
       address: "/manage-problem"
     }
   ];
-  const handleLogout = () => {
-    dispatch(userLogout({ id: -1, name: "" }));
-    sessionStorage.removeItem("id");
-    sessionStorage.removeItem("name");
-    navigate("/");
-  };
+  // const handleLogout = () => {
+  //   sessionStorage.removeItem("id");
+  //   sessionStorage.removeItem("name");
+  //   navigate("/login", { replace: true });
+  // };
 
   return (
     <div className={"flex min-h-screen w-80 min-w-20 flex-col items-center bg-[#EAEAEA] shadow-2xl duration-300"}>
@@ -70,7 +70,7 @@ function SideBar() {
           className={
             "mt-2 flex w-4/5 cursor-pointer flex-row items-center gap-x-2 rounded-lg bg-[#EAEAEA] p-2 text-lg hover:bg-[#fff] hover:shadow-md"
           }
-          onClick={handleLogout}
+          onClick={props.handleLogout}
         >
           <IoIosLogOut className={`mx-3 inline-block h-6 w-6`} />
           <span className={`origin-left duration-200 truncate`}>Đăng xuất</span>

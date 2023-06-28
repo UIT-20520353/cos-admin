@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import Header from "~/components/Header";
 import { AiFillEdit } from "react-icons/ai";
 import { BsFillTrashFill } from "react-icons/bs";
 import AddHostModal from "~/components/Modal/AddHostModal";
 import { IHost } from "~/types/host.type";
 import Swal from "sweetalert2";
 import { deleteHost, getHostList } from "~/queries/api/host-service";
+import { Header } from "~/components";
 
 type IProps = {
   stt: number;

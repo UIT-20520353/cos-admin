@@ -1,5 +1,3 @@
-import { useSelector } from "react-redux";
-import { RootState } from "~/store/store";
 import { useRef } from "react";
 import { CgProfile } from "react-icons/cg";
 
@@ -11,7 +9,6 @@ type IProps = {
 
 function Header(props: IProps) {
   const inputSearchRef = useRef<HTMLInputElement>(null);
-  const user = useSelector((state: RootState) => state.user);
 
   const handleOnChange = () => {
     if (!inputSearchRef.current) return;
@@ -37,7 +34,7 @@ function Header(props: IProps) {
         />
       </div>
       <div className={"flex cursor-pointer flex-row items-center gap-x-4"}>
-        <span className={"font-mono text-lg font-bold"}>{user.name}</span>
+        <span className={"font-mono text-lg font-bold"}>{sessionStorage.getItem("name")}</span>
         <div className={"relative"}>
           <button type={"button"}>
             <CgProfile className={"h-10 w-10 cursor-pointer opacity-60 duration-300 hover:opacity-100"} />
@@ -48,4 +45,4 @@ function Header(props: IProps) {
   );
 }
 
-export default Header;
+export { Header };

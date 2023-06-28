@@ -1,4 +1,3 @@
-import Header from "~/components/Header";
 import { useEffect, useState } from "react";
 import AddProblemModal from "~/components/Modal/AddProblemModal";
 import { AiFillEdit } from "react-icons/ai";
@@ -7,6 +6,7 @@ import { IProblem } from "~/types/problem.type";
 import { getProblemList } from "~/queries/api/problem-service";
 import Swal from "sweetalert2";
 import { NavLink } from "react-router-dom";
+import { Header } from "~/components";
 
 type IProps = {
   stt: number;

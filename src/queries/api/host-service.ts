@@ -3,16 +3,22 @@ import { PostgrestResponse } from "@supabase/supabase-js";
 import { IHost } from "~/types/host.type";
 import { IHostForm } from "~/types/form.type";
 
-export async function getHostList(): Promise<IHost[] | undefined> {
+export async function getHostList(): Promise<IHost[]> {
   try {
     const { data, error }: PostgrestResponse<IHost> = await supabase
       .from("hosts")
       .select("*")
       .then((response) => response as PostgrestResponse<IHost>);
-    if (error) console.error("getHostList: ", error);
-    else return data;
+    if (error) {
+      console.error("getHostList: ", error);
+      return [];
+    } else {
+      if (data && data.length !== 0) return data;
+      else return [];
+    }
   } catch (error) {
     console.error("getHostList: ", error);
+    return [];
   }
 }
 

@@ -1,5 +1,3 @@
-import { useDispatch } from "react-redux";
-import { userLogin } from "~/pages/Login/login.reducer";
 import { handleLogin } from "~/queries/api/account-service";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { ILoginForm } from "~/types/form.type";
@@ -9,8 +7,11 @@ import LoadingModal from "~/components/Modal/LoadingModal";
 import { useMutation } from "@tanstack/react-query";
 import { ISimpleAccount } from "~/types/account.type";
 
-function Login() {
-  const dispatch = useDispatch();
+interface LoginProps {
+  handleSetAuth: (id: number, name: string) => void;
+}
+
+function Login(props: LoginProps) {
   const { register, handleSubmit } = useForm<ILoginForm>();
 
   const { mutate: login, isLoading } = useMutation({
@@ -28,7 +29,7 @@ function Login() {
         });
         return;
       }
-      dispatch(userLogin({ id: data.id, name: data.name }));
+      props.handleSetAuth(data.id, data.name);
       sessionStorage.setItem("id", data.id.toString());
       sessionStorage.setItem("name", data.name);
       toast("Đăng nhập thành công", {

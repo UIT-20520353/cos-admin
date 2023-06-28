@@ -1,4 +1,3 @@
-import Header from "~/components/Header";
 import { NavLink, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
@@ -8,6 +7,7 @@ import { ITestcase } from "~/types/testcase.type";
 import { getTestcaseList } from "~/queries/api/testcase-service";
 import DetailTestcase from "~/components/Testcase/DetailTestcase";
 import AddTestcaseModal from "~/components/Modal/AddTestcaseModal";
+import { Header } from "~/components";
 
 function DetailProblem() {
   const { id } = useParams<{ id: string }>();

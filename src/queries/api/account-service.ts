@@ -4,15 +4,21 @@ import { PostgrestResponse } from "@supabase/supabase-js";
 import { IAccountForm } from "~/types/form.type";
 import CryptoJS from "crypto-js";
 
-export async function getAccountList(): Promise<IManageAccount[] | undefined> {
+export async function getAccountList(): Promise<IManageAccount[]> {
   try {
     const { data, error }: PostgrestResponse<IManageAccount> = await supabase
       .rpc("get_account_list")
       .then((response) => response as PostgrestResponse<IManageAccount>);
-    if (error) console.error("getAccountList :", error);
-    else return data;
+    if (error) {
+      console.error("getAccountList :", error);
+      return [];
+    } else {
+      if (data && data.length !== 0) return data;
+      else return [];
+    }
   } catch (error) {
     console.error("getAccountList :", error);
+    return [];
   }
 }
 
@@ -25,6 +31,11 @@ export async function checkAccountExist(username: string): Promise<boolean | und
 }
 
 export async function handleLogin(username: string, password: string): Promise<ISimpleAccount> {
+  const failResult: ISimpleAccount = {
+    id: -1,
+    name: ""
+  };
+
   try {
     const { data, error }: PostgrestResponse<ISimpleAccount> = await supabase
       .rpc("handle_login", {
@@ -35,24 +46,14 @@ export async function handleLogin(username: string, password: string): Promise<I
       .then((response) => response as PostgrestResponse<ISimpleAccount>);
     if (error) {
       console.error("handleLogin :", error);
-      return {
-        id: -1,
-        name: ""
-      };
+      return failResult;
     } else {
       if (data && data.length !== 0) return data[0];
-      else
-        return {
-          id: -1,
-          name: ""
-        };
+      else return failResult;
     }
   } catch (error) {
     console.error("handleLogin :", error);
-    return {
-      id: -1,
-      name: ""
-    };
+    return failResult;
   }
 }
 
