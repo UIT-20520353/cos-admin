@@ -8,7 +8,6 @@ import { deleteHost, getHostList } from "~/queries/api/host-service";
 import { Header } from "~/components";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ManageHostSkeleton } from "~/skeletons";
-import { IAccount } from "~/types/account.type";
 import { toast } from "react-toastify";
 
 type IProps = {
