@@ -11,12 +11,8 @@ interface HeaderState {
   searchText: string;
 }
 
-const initialValue: HeaderState = {
-  searchText: ""
-};
-
 function Header(props: IProps) {
-  const { register, handleSubmit } = useForm<HeaderState>(initialValue);
+  const { register, handleSubmit } = useForm<HeaderState>();
 
   const onSubmit: SubmitHandler<HeaderState> = (data) => {
     if (props.isUsed) props.onChangeValue(data.searchText);
