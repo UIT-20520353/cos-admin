@@ -3,6 +3,8 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { ITestcaseForm } from "~/types/form.type";
 import Swal from "sweetalert2";
 import { insertTestcase } from "~/queries/api/testcase-service";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 type IProps = {
   problem_id: number;
@@ -16,10 +18,33 @@ function AddTestcaseModal(props: IProps) {
     formState: { errors }
   } = useForm<ITestcaseForm>();
 
+  const { mutate: mutateAdd } = useMutation({
+    mutationFn: (body: ITestcaseForm) => {
+      return insertTestcase(props.problem_id, body);
+    },
+    onSuccess: (response: boolean) => {
+      if (response) {
+        toast("Thêm testcase thành công", {
+          type: "success",
+          position: "bottom-right",
+          autoClose: 3000,
+          closeOnClick: false
+        });
+        props.closeModal();
+      } else {
+        toast("Xảy ra lỗi khi thêm testcase", {
+          type: "error",
+          position: "bottom-right",
+          autoClose: 3000,
+          closeOnClick: false
+        });
+      }
+    }
+  });
+
   const onSubmit: SubmitHandler<ITestcaseForm> = (data) => {
     Swal.fire({
-      title: "Thông báo",
-      text: "Xác nhận tạo testcase mới?",
+      title: "Tạo testcase mới?",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
@@ -28,32 +53,7 @@ function AddTestcaseModal(props: IProps) {
       allowOutsideClick: false
     }).then((result) => {
       if (result.isConfirmed) {
-        insertTestcase(props.problem_id, data).then((response) => {
-          if (response) {
-            Swal.fire({
-              position: "center",
-              titleText: "Thêm testcase thành công",
-              icon: "success",
-              allowOutsideClick: false,
-              showConfirmButton: true,
-              confirmButtonText: "Đồng ý",
-              timer: 3000,
-              didClose() {
-                props.closeModal();
-              }
-            });
-          } else {
-            Swal.fire({
-              position: "center",
-              titleText: "Xảy ra lỗi khi thêm testcase",
-              icon: "error",
-              allowOutsideClick: false,
-              showConfirmButton: true,
-              confirmButtonText: "Đồng ý",
-              timer: 3000
-            });
-          }
-        });
+        mutateAdd(data);
       }
     });
   };

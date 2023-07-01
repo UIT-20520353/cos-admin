@@ -5,11 +5,18 @@ import Swal from "sweetalert2";
 import { addHost, updateHostInfoById } from "~/queries/api/host-service";
 import { useEffect } from "react";
 import { IHost } from "~/types/host.type";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 type IProps = {
   closeModal: () => void;
   isEdit: IHost | null;
 };
+
+interface DataUpdate {
+  id: number;
+  data: IHostForm;
+}
 
 const isEmailValid = (value: string | null) => {
   if (!value) {
@@ -36,6 +43,17 @@ function AddHostModal(props: IProps) {
     setValue
   } = useForm<IHostForm>();
 
+  const { mutate: mutateAdd } = useMutation({
+    mutationFn: (body: IHostForm) => {
+      return addHost(body);
+    }
+  });
+  const { mutate: mutateUpdate } = useMutation({
+    mutationFn: (body: DataUpdate) => {
+      return updateHostInfoById(body.id, body.data);
+    }
+  });
+
   useEffect(() => {
     if (props.isEdit !== null) {
       setValue("name", props.isEdit.name);
@@ -48,10 +66,7 @@ function AddHostModal(props: IProps) {
   const onSubmit: SubmitHandler<IHostForm> = (data) => {
     Swal.fire({
       title: "Thông báo",
-      text:
-        props.isEdit !== null
-          ? "Xác nhận cập nhật thông tin của ban tổ chức?"
-          : "Xác nhận thêm mới ban tổ chức với các thông tin đã nhập?",
+      text: props.isEdit !== null ? "Cập nhật thông tin của ban tổ chức?" : "Thêm mới ban tổ chức?",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
@@ -61,37 +76,49 @@ function AddHostModal(props: IProps) {
     }).then((result) => {
       if (result.isConfirmed) {
         if (props.isEdit === null) {
-          addHost(data).then((response) => {
-            if (response) {
-              Swal.fire({
-                position: "center",
-                titleText: "Thêm ban tổ chức thành công",
-                icon: "success",
-                allowOutsideClick: false,
-                showConfirmButton: true,
-                confirmButtonText: "Đồng ý",
-                timer: 3000,
-                didClose() {
-                  props.closeModal();
-                }
-              });
+          mutateAdd(data, {
+            onSuccess: (response: boolean) => {
+              if (response) {
+                toast("Thêm ban tổ chức thành công", {
+                  type: "success",
+                  position: "bottom-right",
+                  autoClose: 3000,
+                  closeOnClick: false
+                });
+                props.closeModal();
+              } else {
+                toast("Xảy ra lỗi khi thêm ban tổ chức", {
+                  type: "error",
+                  position: "bottom-right",
+                  autoClose: 3000,
+                  closeOnClick: false
+                });
+              }
             }
           });
         } else {
-          updateHostInfoById(props.isEdit.id, data).then((response) => {
-            if (response) {
-              Swal.fire({
-                position: "center",
-                titleText: "Cập nhật thông tin ban tổ chức thành công",
-                icon: "success",
-                allowOutsideClick: false,
-                showConfirmButton: true,
-                confirmButtonText: "Đồng ý",
-                timer: 3000,
-                didClose() {
-                  props.closeModal();
-                }
-              });
+          const body: DataUpdate = {
+            id: props.isEdit.id,
+            data
+          };
+          mutateUpdate(body, {
+            onSuccess: (response: boolean) => {
+              if (response) {
+                toast("Cập nhật thông tin ban tổ chức thành công", {
+                  type: "success",
+                  position: "bottom-right",
+                  autoClose: 3000,
+                  closeOnClick: false
+                });
+                props.closeModal();
+              } else {
+                toast("Xảy ra lỗi khi cập nhật thông tin ban tổ chức", {
+                  type: "error",
+                  position: "bottom-right",
+                  autoClose: 3000,
+                  closeOnClick: false
+                });
+              }
             }
           });
         }

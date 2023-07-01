@@ -4,17 +4,19 @@ import { PostgrestResponse } from "@supabase/supabase-js";
 import { IAccountForm } from "~/types/form.type";
 import CryptoJS from "crypto-js";
 
-export async function getAccountList(): Promise<IManageAccount[]> {
+export async function getAccountList(searchText: string): Promise<IManageAccount[]> {
   try {
     const { data, error }: PostgrestResponse<IManageAccount> = await supabase
-      .rpc("get_account_list")
+      .rpc("get_account_list", { search_text: searchText })
       .then((response) => response as PostgrestResponse<IManageAccount>);
     if (error) {
       console.error("getAccountList :", error);
       return [];
     } else {
-      if (data && data.length !== 0) return data;
-      else return [];
+      if (data && data.length !== 0) {
+        // await new Promise((resolve) => setTimeout(resolve, 3000));
+        return data;
+      } else return [];
     }
   } catch (error) {
     console.error("getAccountList :", error);

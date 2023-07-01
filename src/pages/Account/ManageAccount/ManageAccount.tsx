@@ -54,14 +54,19 @@ function ManageAccount() {
   const queryClient = useQueryClient();
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<IManageAccount | null>(null);
+  const [searchText, setSearchText] = useState<string>("");
 
   const { data: accounts, isLoading: accountLoading } = useQuery({
-    queryKey: ["account-list"],
-    queryFn: getAccountList
+    queryKey: ["account-list", searchText],
+    queryFn: () => {
+      return getAccountList(searchText);
+    }
   });
   const { data: hosts, isLoading: hostLoading } = useQuery({
-    queryKey: ["host-list"],
-    queryFn: getHostList
+    queryKey: ["host-list", ""],
+    queryFn: () => {
+      return getHostList("");
+    }
   });
   const { mutate: deleteAccount } = useMutation({
     mutationFn: (body: number) => {
@@ -71,21 +76,7 @@ function ManageAccount() {
 
   const onChangeValue = (value: string | null) => {
     if (value === null) return;
-    // if (accounts.length === 0) return;
-
-    // if (value === "") {
-    //   const temp = [...accounts];
-    //   setFilteredAccounts(temp);
-    //   return;
-    // }
-    //
-    // const filtered = value.toUpperCase();
-    // const result = accounts.filter((account) => {
-    //   const temp = account.name.toUpperCase();
-    //   return temp.includes(filtered);
-    // });
-    //
-    // setFilteredAccounts(result);
+    setSearchText(value);
   };
   const openModal = () => {
     setIsOpenModal(true);
@@ -141,21 +132,22 @@ function ManageAccount() {
     <div className={"w-full"}>
       <Header placeHolder={"Nhập tên"} isUsed={true} onChangeValue={onChangeValue} />
 
-      {(accountLoading || hostLoading) && <ManageAccountSkeleton />}
+      <div className={"mx-12 my-10"}>
+        <div className={"flex flex-row items-center justify-between"}>
+          <p className={"text-xl font-semibold"}>Danh sách tài khoản</p>
+          <button
+            className={
+              "px-4 py-2 duration-300 shadow-md bg-gray-300 hover:bg-gray-200 rounded-md text-base font-medium"
+            }
+            onClick={openModal}
+            disabled={accountLoading || hostLoading}
+          >
+            Thêm tài khoản
+          </button>
+        </div>
 
-      {!accountLoading && !hostLoading && (
-        <div className={"mx-12 my-10"}>
-          <div className={"flex flex-row items-center justify-between"}>
-            <p className={"text-xl font-semibold"}>Quản lý tài khoản</p>
-            <button
-              className={
-                "px-4 py-2 duration-300 shadow-md bg-gray-300 hover:bg-gray-200 rounded-md text-base font-medium"
-              }
-              onClick={openModal}
-            >
-              Thêm tài khoản
-            </button>
-          </div>
+        {(accountLoading || hostLoading) && <ManageAccountSkeleton />}
+        {!accountLoading && !hostLoading && (
           <table className={"w-full text-left text-sm text-gray-500 mt-5"}>
             <thead className={"bg-gray-200 text-xs uppercase text-gray-700"}>
               <tr>
@@ -185,8 +177,8 @@ function ManageAccount() {
               ))}
             </tbody>
           </table>
-        </div>
-      )}
+        )}
+      </div>
       {isOpenModal && <AddAccountModal hosts={hosts ?? []} closeModal={closeModal} />}
       {isEdit && <EditAccountModal hosts={hosts ?? []} account={isEdit} closeModal={closeEditForm} />}
     </div>

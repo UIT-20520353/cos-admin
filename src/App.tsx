@@ -49,7 +49,6 @@ function App() {
           <Route path={"manage-problem"} element={<ManageProblem />} />
           <Route path={"problem/detail/:id"} element={<DetailProblem />} />
         </Route>
-        {/*<Route path={"/login"} element={<Login handleSetAuth={handleSetAuth} />} />*/}
       </Routes>
       <ToastContainer pauseOnFocusLoss={false} pauseOnHover={false} closeOnClick={false} draggable={false} />
     </div>

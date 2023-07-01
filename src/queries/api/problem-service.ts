@@ -3,7 +3,7 @@ import supabase from "~/queries/supabase";
 import { IProblem } from "~/types/problem.type";
 import { PostgrestResponse } from "@supabase/supabase-js";
 
-export async function insertProblem(formData: IProblemForm): Promise<boolean | undefined> {
+export async function insertProblem(formData: IProblemForm): Promise<boolean> {
   try {
     const { data, error } = await supabase
       .from("problems")
@@ -22,26 +22,39 @@ export async function insertProblem(formData: IProblemForm): Promise<boolean | u
     }
   } catch (error) {
     console.error("insertProblem: ", error);
+    return false;
   }
 }
 
-export async function getProblemList(): Promise<IProblem[] | undefined> {
+export async function getProblemList(searchText: string): Promise<IProblem[]> {
   try {
     const { data, error }: PostgrestResponse<IProblem> = await supabase
-      .rpc("get_problem_list")
+      .rpc("get_problem_list", { search_text: searchText })
       .then((response) => response as PostgrestResponse<IProblem>);
 
     if (error) {
-      console.error("insertProblem: ", error);
+      console.error("getProblemList: ", error);
+      return [];
     } else {
-      return data;
+      // await new Promise((resolve) => setTimeout(resolve, 3000));
+      if (data && data.length !== 0) return data;
+      else return [];
     }
   } catch (error) {
-    console.error("insertProblem: ", error);
+    console.error("getProblemList: ", error);
+    return [];
   }
 }
 
-export async function getProblemById(id: number): Promise<IProblem[] | undefined> {
+export async function getProblemById(id: number): Promise<IProblem> {
+  const failResult: IProblem = {
+    id: -1,
+    name: "",
+    detail: "",
+    example_input: "",
+    example_output: ""
+  };
+
   try {
     const { data, error }: PostgrestResponse<IProblem> = await supabase
       .from("problems")
@@ -51,10 +64,31 @@ export async function getProblemById(id: number): Promise<IProblem[] | undefined
 
     if (error) {
       console.error("getProblemById: ", error);
+      return failResult;
     } else {
-      return data;
+      // await new Promise(resolve => setTimeout(resolve, 3000))
+      if (data && data.length !== 0) {
+        return data[0];
+      } else return failResult;
     }
   } catch (error) {
     console.error("getProblemById: ", error);
+    return failResult;
+  }
+}
+
+export async function deleteProblemById(id: number): Promise<boolean> {
+  try {
+    const { error }: PostgrestResponse<IProblem> = await supabase.from("problems").delete().eq("id", id);
+
+    if (error) {
+      console.error("deleteProblemById: ", error);
+      return false;
+    } else {
+      return true;
+    }
+  } catch (error) {
+    console.error("deleteProblemById: ", error);
+    return false;
   }
 }

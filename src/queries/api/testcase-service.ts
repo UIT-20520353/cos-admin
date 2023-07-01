@@ -3,7 +3,7 @@ import { PostgrestResponse } from "@supabase/supabase-js";
 import supabase from "~/queries/supabase";
 import { ITestcaseForm } from "~/types/form.type";
 
-export async function deleteTestcaseById(id: number): Promise<boolean | undefined> {
+export async function deleteTestcaseById(id: number): Promise<boolean> {
   try {
     const { error } = await supabase.from("testcases").delete().eq("id", id);
     if (error) {
@@ -12,10 +12,11 @@ export async function deleteTestcaseById(id: number): Promise<boolean | undefine
     } else return true;
   } catch (error) {
     console.error("deleteTestcaseById", error);
+    return false;
   }
 }
 
-export async function getTestcaseList(problem_id: number): Promise<ITestcase[] | undefined> {
+export async function getTestcaseList(problem_id: number): Promise<ITestcase[]> {
   try {
     const { data, error }: PostgrestResponse<ITestcase> = await supabase
       .from("testcases")
@@ -23,14 +24,20 @@ export async function getTestcaseList(problem_id: number): Promise<ITestcase[] |
       .eq("problem_id", problem_id)
       .then((response) => response as PostgrestResponse<ITestcase>);
 
-    if (error) console.error("getTestcaseList :", error);
-    else return data;
+    if (error) {
+      console.error("getTestcaseList :", error);
+      return [];
+    } else {
+      if (data) return data;
+      else return [];
+    }
   } catch (error) {
     console.error("getTestcaseList :", error);
+    return [];
   }
 }
 
-export async function insertTestcase(problem_id: number, formData: ITestcaseForm): Promise<boolean | undefined> {
+export async function insertTestcase(problem_id: number, formData: ITestcaseForm): Promise<boolean> {
   try {
     const { data, error } = await supabase
       .from("testcases")
@@ -43,10 +50,11 @@ export async function insertTestcase(problem_id: number, formData: ITestcaseForm
     } else return !!data;
   } catch (error) {
     console.error("insertTestcase: ", error);
+    return false;
   }
 }
 
-export async function updateTestcase(id: number, formData: ITestcaseForm): Promise<boolean | undefined> {
+export async function updateTestcase(id: number, formData: ITestcaseForm): Promise<boolean> {
   try {
     const { data, error } = await supabase
       .from("testcases")
@@ -59,5 +67,6 @@ export async function updateTestcase(id: number, formData: ITestcaseForm): Promi
     } else return !!data;
   } catch (error) {
     console.error("updateTestcase: ", error);
+    return false;
   }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AiFillEdit } from "react-icons/ai";
 import { BsFillTrashFill } from "react-icons/bs";
 import AddHostModal from "~/components/Modal/AddHostModal";
@@ -6,6 +6,10 @@ import { IHost } from "~/types/host.type";
 import Swal from "sweetalert2";
 import { deleteHost, getHostList } from "~/queries/api/host-service";
 import { Header } from "~/components";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ManageHostSkeleton } from "~/skeletons";
+import { IAccount } from "~/types/account.type";
+import { toast } from "react-toastify";
 
 type IProps = {
   stt: number;
@@ -50,55 +54,30 @@ function ManageHost() {
     isOpen: false,
     isEdit: null
   });
-  const [hosts, setHosts] = useState<IHost[]>([]);
-  const [filteredHosts, setFilteredHosts] = useState<IHost[]>([]);
-
-  useEffect(() => {
-    handleFetchData();
-  }, []);
-
-  const handleFetchData = async () => {
-    Swal.fire({
-      position: "center",
-      title: "Đang lấy dữ liệu",
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      didOpen() {
-        Swal.showLoading();
-      }
-    });
-
-    const data = await getHostList();
-    if (data && data.length !== 0) {
-      setHosts(data ?? []);
-      setFilteredHosts(data ?? []);
+  const [searchText, setSearchText] = useState<string>("");
+  const queryClient = useQueryClient();
+  const { data: hosts, isLoading } = useQuery({
+    queryKey: ["host-list", searchText],
+    queryFn: () => {
+      return getHostList(searchText);
     }
-
-    Swal.close();
-  };
+  });
+  const { mutate: mutateDelete } = useMutation({
+    mutationFn: (body: number) => {
+      return deleteHost(body);
+    }
+  });
 
   const onChangeValue = (value: string | null) => {
     if (value === null) return;
-
-    if (value === "") {
-      const temp = [...hosts];
-      setFilteredHosts(temp);
-      return;
-    }
-
-    const filtered = value.toUpperCase();
-    const result = hosts.filter((host) => {
-      const temp = host.name.toUpperCase();
-      return temp.includes(filtered);
-    });
-    setFilteredHosts(result);
+    setSearchText(value);
   };
   const openModal = () => {
     setStatusModal({ isOpen: true, isEdit: null });
   };
   const closeModal = () => {
+    queryClient.invalidateQueries({ queryKey: ["host-list"] });
     setStatusModal({ isOpen: false, isEdit: null });
-    handleFetchData();
   };
   const openEditForm = (host: IHost) => {
     setStatusModal({ isOpen: true, isEdit: host });
@@ -116,30 +95,24 @@ function ManageHost() {
       allowOutsideClick: false
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteHost(id).then((response) => {
-          if (response) {
-            Swal.fire({
-              position: "center",
-              titleText: "Xóa ban tổ chức thành công",
-              icon: "success",
-              allowOutsideClick: false,
-              showConfirmButton: true,
-              confirmButtonText: "Đồng ý",
-              timer: 3000,
-              didClose() {
-                handleFetchData();
-              }
-            });
-          } else {
-            Swal.fire({
-              position: "center",
-              titleText: "Xảy ra lỗi khi xóa",
-              icon: "error",
-              allowOutsideClick: false,
-              showConfirmButton: true,
-              confirmButtonText: "Đồng ý",
-              timer: 3000
-            });
+        mutateDelete(id, {
+          onSuccess: (response: IAccount) => {
+            if (response.id !== -1) {
+              toast("Xóa ban tổ chức thành công", {
+                type: "success",
+                position: "bottom-right",
+                autoClose: 3000,
+                closeOnClick: false
+              });
+              queryClient.invalidateQueries({ queryKey: ["host-list"] });
+            } else {
+              toast("Xảy ra lỗi khi xóa", {
+                type: "error",
+                position: "bottom-right",
+                autoClose: 3000,
+                closeOnClick: false
+              });
+            }
           }
         });
       }
@@ -158,45 +131,49 @@ function ManageHost() {
               "px-4 py-2 duration-300 shadow-md bg-gray-300 hover:bg-gray-200 rounded-md text-base font-medium"
             }
             onClick={openModal}
+            disabled={isLoading}
           >
             Thêm ban tổ chức
           </button>
         </div>
-        <table className={"w-full text-left text-sm text-gray-500 mt-5"}>
-          <thead className={"bg-gray-200 text-xs uppercase text-gray-700"}>
-            <tr>
-              <th scope={"col"} className={"w-20 border border-black px-6 py-3 text-center"}>
-                STT
-              </th>
-              <th scope={"col"} className={"border border-black px-6 py-3 text-center"}>
-                Tên ban tổ chức
-              </th>
-              <th scope={"col"} className={"w-44 border border-black px-6 py-3 text-center"}>
-                Email
-              </th>
-              <th scope={"col"} className={"w-44 border border-black px-6 py-3 text-center"}>
-                Số điện thoại
-              </th>
-              <th scope={"col"} className={"w-44 border border-black px-6 py-3 text-center"}>
-                Địa chỉ
-              </th>
-              <th scope={"col"} className={"w-48 border border-black px-6 py-3 text-center"}>
-                Thao tác
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredHosts.map((host, index) => (
-              <RowItem
-                openEditForm={openEditForm}
-                stt={index}
-                key={`host-${host.id}`}
-                host={host}
-                deleteHost={handleDeleteHost}
-              />
-            ))}
-          </tbody>
-        </table>
+        {isLoading && <ManageHostSkeleton />}
+        {!isLoading && (
+          <table className={"w-full text-left text-sm text-gray-500 mt-5"}>
+            <thead className={"bg-gray-200 text-xs uppercase text-gray-700"}>
+              <tr>
+                <th scope={"col"} className={"w-20 border border-black px-6 py-3 text-center"}>
+                  STT
+                </th>
+                <th scope={"col"} className={"border border-black px-6 py-3 text-center"}>
+                  Tên ban tổ chức
+                </th>
+                <th scope={"col"} className={"w-44 border border-black px-6 py-3 text-center"}>
+                  Email
+                </th>
+                <th scope={"col"} className={"w-44 border border-black px-6 py-3 text-center"}>
+                  Số điện thoại
+                </th>
+                <th scope={"col"} className={"w-44 border border-black px-6 py-3 text-center"}>
+                  Địa chỉ
+                </th>
+                <th scope={"col"} className={"w-48 border border-black px-6 py-3 text-center"}>
+                  Thao tác
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {hosts?.map((host, index) => (
+                <RowItem
+                  openEditForm={openEditForm}
+                  stt={index}
+                  key={`host-${host.id}`}
+                  host={host}
+                  deleteHost={handleDeleteHost}
+                />
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {statusModal.isOpen && <AddHostModal isEdit={statusModal.isEdit} closeModal={closeModal} />}

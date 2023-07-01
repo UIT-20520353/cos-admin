@@ -3,6 +3,8 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { IProblemForm } from "~/types/form.type";
 import Swal from "sweetalert2";
 import { insertProblem } from "~/queries/api/problem-service";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 type IProps = {
   closeModal: () => void;
@@ -15,10 +17,33 @@ function AddProblemModal(props: IProps) {
     formState: { errors }
   } = useForm<IProblemForm>();
 
+  const { mutate } = useMutation({
+    mutationFn: (body: IProblemForm) => {
+      return insertProblem(body);
+    },
+    onSuccess: (response: boolean) => {
+      if (response) {
+        toast("Thêm bài tập thành công", {
+          type: "success",
+          position: "bottom-right",
+          autoClose: 3000,
+          closeOnClick: false
+        });
+        props.closeModal();
+      } else {
+        toast("Xảy ra lỗi khi thêm bài tập", {
+          type: "error",
+          position: "bottom-right",
+          autoClose: 3000,
+          closeOnClick: false
+        });
+      }
+    }
+  });
+
   const onSubmit: SubmitHandler<IProblemForm> = (data) => {
     Swal.fire({
-      title: "Thông báo",
-      text: "Xác nhận tạo bài tập mới với các thông tin đã nhập?",
+      title: "Tạo bài tập mới?",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
@@ -27,32 +52,7 @@ function AddProblemModal(props: IProps) {
       allowOutsideClick: false
     }).then((result) => {
       if (result.isConfirmed) {
-        insertProblem(data).then((response) => {
-          if (response) {
-            Swal.fire({
-              position: "center",
-              titleText: "Thêm bài tập thành công",
-              icon: "success",
-              allowOutsideClick: false,
-              showConfirmButton: true,
-              confirmButtonText: "Đồng ý",
-              timer: 3000,
-              didClose() {
-                props.closeModal();
-              }
-            });
-          } else {
-            Swal.fire({
-              position: "center",
-              titleText: "Xảy ra lỗi khi thêm bài tập",
-              icon: "error",
-              allowOutsideClick: false,
-              showConfirmButton: true,
-              confirmButtonText: "Đồng ý",
-              timer: 3000
-            });
-          }
-        });
+        mutate(data);
       }
     });
   };

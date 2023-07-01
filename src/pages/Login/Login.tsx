@@ -62,9 +62,6 @@ function Login(props: LoginProps) {
     }
 
     login(data);
-
-    // if (sessionStorage.getItem("id") != null)
-    // else
   };
 
   return (

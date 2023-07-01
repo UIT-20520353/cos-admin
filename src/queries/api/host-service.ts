@@ -3,18 +3,21 @@ import { PostgrestResponse } from "@supabase/supabase-js";
 import { IHost } from "~/types/host.type";
 import { IHostForm } from "~/types/form.type";
 
-export async function getHostList(): Promise<IHost[]> {
+export async function getHostList(searchText: string): Promise<IHost[]> {
   try {
     const { data, error }: PostgrestResponse<IHost> = await supabase
       .from("hosts")
       .select("*")
+      .ilike("name", `%${searchText}%`)
       .then((response) => response as PostgrestResponse<IHost>);
     if (error) {
       console.error("getHostList: ", error);
       return [];
     } else {
-      if (data && data.length !== 0) return data;
-      else return [];
+      if (data && data.length !== 0) {
+        // await new Promise((resolve) => setTimeout(resolve, 3000));
+        return data;
+      } else return [];
     }
   } catch (error) {
     console.error("getHostList: ", error);
@@ -22,7 +25,7 @@ export async function getHostList(): Promise<IHost[]> {
   }
 }
 
-export async function addHost(formData: IHostForm): Promise<IHost[] | undefined> {
+export async function addHost(formData: IHostForm): Promise<boolean> {
   try {
     const { data, error }: PostgrestResponse<IHost> = await supabase
       .from("hosts")
@@ -34,14 +37,19 @@ export async function addHost(formData: IHostForm): Promise<IHost[] | undefined>
       })
       .select("*")
       .then((response) => response as PostgrestResponse<IHost>);
-    if (error) console.error("addHost: ", error);
-    else return data;
+    if (error) {
+      console.error("addHost: ", error);
+      return false;
+    } else {
+      return !!data;
+    }
   } catch (error) {
     console.error("addHost: ", error);
+    return false;
   }
 }
 
-export async function deleteHost(id: number): Promise<boolean | undefined> {
+export async function deleteHost(id: number): Promise<boolean> {
   try {
     const { error } = await supabase.from("hosts").delete().eq("id", id);
     if (error) {
@@ -50,6 +58,7 @@ export async function deleteHost(id: number): Promise<boolean | undefined> {
     } else return true;
   } catch (error) {
     console.error("deleteHost: ", error);
+    return false;
   }
 }
 
@@ -82,7 +91,7 @@ export async function getHostInfoById(id: number | null): Promise<IHost> {
   }
 }
 
-export async function updateHostInfoById(id: number, formData: IHostForm): Promise<IHost[] | undefined> {
+export async function updateHostInfoById(id: number, formData: IHostForm): Promise<boolean> {
   try {
     const { data, error }: PostgrestResponse<IHost> = await supabase
       .from("hosts")
@@ -95,9 +104,14 @@ export async function updateHostInfoById(id: number, formData: IHostForm): Promi
       .eq("id", id)
       .select("*")
       .then((response) => response as PostgrestResponse<IHost>);
-    if (error) console.error("updateHostInfoById: ", error);
-    else return data;
+    if (error) {
+      console.error("updateHostInfoById: ", error);
+      return false;
+    } else {
+      return !!data;
+    }
   } catch (error) {
     console.error("updateHostInfoById: ", error);
+    return false;
   }
 }

@@ -5,6 +5,8 @@ import { AiFillCaretDown } from "react-icons/ai";
 import { ITestcaseForm } from "~/types/form.type";
 import { ITestcase } from "~/types/testcase.type";
 import { deleteTestcaseById, updateTestcase } from "~/queries/api/testcase-service";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 type IProps = {
   stt: number;
@@ -21,14 +23,60 @@ function DetailTestcase(props: IProps) {
     setValue
   } = useForm<ITestcaseForm>();
 
+  const { mutate: mutateUpdate } = useMutation({
+    mutationFn: (body: ITestcaseForm) => {
+      return updateTestcase(props.testcase.id, body);
+    },
+    onSuccess: (response: boolean) => {
+      if (response) {
+        toast("Cập nhật thông tin testcase thành công", {
+          type: "success",
+          position: "bottom-right",
+          autoClose: 3000,
+          closeOnClick: false
+        });
+        props.loadTestcases();
+      } else {
+        toast("Xảy ra lỗi khi cập nhật testcase", {
+          type: "error",
+          position: "bottom-right",
+          autoClose: 3000,
+          closeOnClick: false
+        });
+      }
+    }
+  });
+  const { mutate: mutateDelete } = useMutation({
+    mutationFn: (body: number) => {
+      return deleteTestcaseById(body);
+    },
+    onSuccess: (response: boolean) => {
+      if (response) {
+        toast("Xóa testcase thành công", {
+          type: "success",
+          position: "bottom-right",
+          autoClose: 3000,
+          closeOnClick: false
+        });
+        props.loadTestcases();
+      } else {
+        toast("Xảy ra lỗi khi xóa testcase", {
+          type: "error",
+          position: "bottom-right",
+          autoClose: 3000,
+          closeOnClick: false
+        });
+      }
+    }
+  });
+
   useEffect(() => {
     setValue("input", props.testcase.input);
     setValue("output", props.testcase.output);
   }, []);
   const onSubmit: SubmitHandler<ITestcaseForm> = (data) => {
     Swal.fire({
-      title: "Cập nhật thông tin testcase",
-      text: `Xác nhận sẽ cập nhật các thông tin của testcase?`,
+      title: `Cập nhật testcase ${props.stt + 1}?`,
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
@@ -37,37 +85,13 @@ function DetailTestcase(props: IProps) {
       allowOutsideClick: false
     }).then((result) => {
       if (result.isConfirmed) {
-        updateTestcase(props.testcase.id, data).then((response) => {
-          if (response) {
-            Swal.fire({
-              position: "center",
-              timer: 4000,
-              icon: "success",
-              showConfirmButton: true,
-              title: "Cập nhật thông tin testcase thành công",
-              allowOutsideClick: false,
-              didClose() {
-                props.loadTestcases();
-              }
-            });
-          } else {
-            Swal.fire({
-              position: "center",
-              timer: 4000,
-              icon: "error",
-              showConfirmButton: true,
-              title: "Xảy ra lỗi khi cập nhật testcase",
-              allowOutsideClick: false
-            });
-          }
-        });
+        mutateUpdate(data);
       }
     });
   };
   const handleDelete = () => {
     Swal.fire({
-      title: "Xóa testcase",
-      text: `Xóa tất cả thông tin của testcase ${props.stt + 1}?`,
+      title: `Xóa testcase ${props.stt + 1}?`,
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
@@ -76,30 +100,7 @@ function DetailTestcase(props: IProps) {
       allowOutsideClick: false
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteTestcaseById(props.testcase.id).then((response) => {
-          if (response) {
-            Swal.fire({
-              position: "center",
-              timer: 4000,
-              icon: "success",
-              showConfirmButton: true,
-              title: "Xóa testcase thành công",
-              allowOutsideClick: false,
-              didClose() {
-                props.loadTestcases();
-              }
-            });
-          } else {
-            Swal.fire({
-              position: "center",
-              timer: 4000,
-              icon: "error",
-              showConfirmButton: true,
-              title: "Xảy ra lỗi khi xóa testcase",
-              allowOutsideClick: false
-            });
-          }
-        });
+        mutateDelete(props.testcase.id);
       }
     });
   };
