@@ -79,7 +79,7 @@ export async function getProblemById(id: number): Promise<IProblem> {
 
 export async function deleteProblemById(id: number): Promise<boolean> {
   try {
-    const { error }: PostgrestResponse<IProblem> = await supabase.from("problems").delete().eq("id", id);
+    const { error } = await supabase.from("problems").delete().eq("id", id);
 
     if (error) {
       console.error("deleteProblemById: ", error);

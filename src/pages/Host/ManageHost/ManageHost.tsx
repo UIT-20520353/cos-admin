@@ -96,8 +96,8 @@ function ManageHost() {
     }).then((result) => {
       if (result.isConfirmed) {
         mutateDelete(id, {
-          onSuccess: (response: IAccount) => {
-            if (response.id !== -1) {
+          onSuccess: (response: boolean) => {
+            if (response) {
               toast("Xóa ban tổ chức thành công", {
                 type: "success",
                 position: "bottom-right",

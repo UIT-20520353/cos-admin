@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { CgProfile } from "react-icons/cg";
 import { SubmitHandler, useForm } from "react-hook-form";
 
@@ -8,18 +7,18 @@ type IProps = {
   isUsed: boolean;
 };
 
-interface FormState {
+interface HeaderState {
   value: string;
 }
 
-const initialValue: FormState = {
+const initialValue: HeaderState = {
   value: ""
 };
 
 function Header(props: IProps) {
-  const { register, handleSubmit } = useForm<FormState>(initialValue);
+  const { register, handleSubmit } = useForm<HeaderState>(initialValue);
 
-  const onSubmit: SubmitHandler<FormState> = (data) => {
+  const onSubmit: SubmitHandler<HeaderState> = (data) => {
     if (props.isUsed) props.onChangeValue(data.value);
     else props.onChangeValue(null);
   };
