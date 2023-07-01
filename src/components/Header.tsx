@@ -8,18 +8,18 @@ type IProps = {
 };
 
 interface HeaderState {
-  value: string;
+  searchText: string;
 }
 
 const initialValue: HeaderState = {
-  value: ""
+  searchText: ""
 };
 
 function Header(props: IProps) {
   const { register, handleSubmit } = useForm<HeaderState>(initialValue);
 
   const onSubmit: SubmitHandler<HeaderState> = (data) => {
-    if (props.isUsed) props.onChangeValue(data.value);
+    if (props.isUsed) props.onChangeValue(data.searchText);
     else props.onChangeValue(null);
   };
 
@@ -37,14 +37,14 @@ function Header(props: IProps) {
           }
           placeholder={props.placeHolder}
           autoComplete={"off"}
-          {...register("value")}
+          {...register("searchText")}
         />
       </form>
       <div className={"flex cursor-pointer flex-row items-center gap-x-4"}>
         <span className={"font-mono text-lg font-bold"}>{sessionStorage.getItem("name")}</span>
         <div className={"relative"}>
           <button type={"button"}>
-            <CgProfile className={"h-10 w-10 cursor-pointer opacity-60 duration-300 hover:opacity-100"} />
+            <CgProfile className={"h-10 w-10 opacity-60 duration-300 hover:opacity-100"} />
           </button>
         </div>
       </div>
