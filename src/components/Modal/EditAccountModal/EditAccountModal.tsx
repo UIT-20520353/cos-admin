@@ -5,7 +5,7 @@ import { IAccountForm } from "~/types/form.type";
 import { useEffect } from "react";
 import { isEmailValid, isPhoneNumberValid } from "~/utils/ValidateForm";
 import Swal from "sweetalert2";
-import { updateAccountInfoById } from "~/queries/api/account-service";
+import { checkEmailExist, updateAccountInfoById } from "~/queries/api/account-service";
 import { IHost } from "~/types/host.type";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -44,10 +44,22 @@ function EditAccountModal(props: IProps) {
     setValue("role", props.account.role_name === "CANDIDATE" ? "Thí sinh" : "Ban tổ chức");
   }, []);
 
-  const onSubmit: SubmitHandler<IAccountForm> = (data) => {
+  const onSubmit: SubmitHandler<IAccountForm> = async (data) => {
+    if (data.email !== props.account.email) {
+      const result = await checkEmailExist(data.email);
+      if (result) {
+        toast("Email đã được sử dụng", {
+          type: "error",
+          position: "bottom-right",
+          autoClose: 3000,
+          closeOnClick: false
+        });
+        return;
+      }
+    }
+
     Swal.fire({
-      title: "Thông báo",
-      text: "Xác nhận cập nhật thông tin tài khoản?",
+      title: "Xác nhận cập nhật thông tin tài khoản?",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",

@@ -4,7 +4,7 @@ import { IAccountForm } from "~/types/form.type";
 import { ChangeEvent, useState } from "react";
 import { IHost } from "~/types/host.type";
 import Swal from "sweetalert2";
-import { checkAccountExist, insertAccount } from "~/queries/api/account-service";
+import { checkAccountExist, checkEmailExist, insertAccount } from "~/queries/api/account-service";
 import { isEmailValid, isPhoneNumberValid, isUsernameValid } from "~/utils/ValidateForm";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -48,9 +48,19 @@ function AddAccountModal(props: IProps) {
       return;
     }
 
+    const result = await checkEmailExist(data.email);
+    if (result) {
+      toast("Email đã được sử dụng", {
+        type: "error",
+        position: "bottom-right",
+        autoClose: 3000,
+        closeOnClick: false
+      });
+      return;
+    }
+
     Swal.fire({
-      title: "Thông báo",
-      text: "Xác nhận tạo tài khoản mới?",
+      title: "Xác nhận tạo tài khoản mới?",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",

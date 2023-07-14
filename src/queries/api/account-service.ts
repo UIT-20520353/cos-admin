@@ -28,10 +28,24 @@ export async function checkAccountExist(username: string): Promise<boolean> {
   try {
     const { data, error } = await supabase.rpc("check_exist", { user_name: username });
     if (error) {
-      console.error(error);
-      return false;
+      throw error;
     } else {
       return !!data;
+    }
+  } catch (error) {
+    console.error("checkAccountExist: ", error);
+    return false;
+  }
+}
+
+export async function checkEmailExist(email: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.from("accounts").select("*").eq("email", email);
+    if (error) {
+      throw error;
+    } else {
+      if (data && data.length > 0) return true;
+      else return false;
     }
   } catch (error) {
     console.error("checkAccountExist: ", error);

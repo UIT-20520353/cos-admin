@@ -4,6 +4,7 @@ import { getDateAndTime } from "~/utils/ValidateDate";
 import { DashboardSkeleton } from "~/skeletons";
 import { Header } from "~/components";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 type IProps = {
   contest: IContestDashboard;
@@ -34,6 +35,10 @@ function RowItem(props: { row: IContestForRanking; stt: number }) {
 }
 
 function Dashboard() {
+  useEffect(() => {
+    document.title = "Trang chủ";
+  }, []);
+
   const { data: contests, isLoading: contestsLoading } = useQuery({
     queryKey: ["dashboard", "contests"],
     queryFn: getContestListDashboard,

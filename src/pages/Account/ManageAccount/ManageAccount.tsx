@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiFillEdit } from "react-icons/ai";
 import { BsFillTrashFill } from "react-icons/bs";
 import AddAccountModal from "~/components/Modal/AddAccountModal";
@@ -51,6 +51,10 @@ function RowItem(props: IProps) {
 }
 
 function ManageAccount() {
+  useEffect(() => {
+    document.title = "Quản lý tài khoản";
+  }, []);
+
   const queryClient = useQueryClient();
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<IManageAccount | null>(null);

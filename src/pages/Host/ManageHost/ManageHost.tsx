@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiFillEdit } from "react-icons/ai";
 import { BsFillTrashFill } from "react-icons/bs";
 import AddHostModal from "~/components/Modal/AddHostModal";
@@ -49,6 +49,10 @@ function RowItem(props: IProps) {
 }
 
 function ManageHost() {
+  useEffect(() => {
+    document.title = "Quản lý ban tổ chức";
+  }, []);
+
   const [statusModal, setStatusModal] = useState<{ isOpen: boolean; isEdit: IHost | null }>({
     isOpen: false,
     isEdit: null

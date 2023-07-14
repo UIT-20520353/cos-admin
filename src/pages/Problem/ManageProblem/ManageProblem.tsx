@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddProblemModal from "~/components/Modal/AddProblemModal";
 import { AiFillEdit } from "react-icons/ai";
 import { BsFillTrashFill } from "react-icons/bs";
-import { IProblem } from "~/types/problem.type";
-import { deleteProblemById, getProblemList } from "~/queries/api/problem-service";
+import { IOverviewProblem } from "~/types/problem.type";
+import { deleteProblemById, getProblemsAndCount } from "~/queries/api/problem-service";
 import { NavLink } from "react-router-dom";
 import { Header } from "~/components";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 
 type IProps = {
   stt: number;
-  problem: IProblem;
+  problem: IOverviewProblem;
   handleDelete: (id: number) => void;
 };
 
@@ -27,7 +27,7 @@ function RowItem(props: IProps) {
         {props.stt + 1}
       </th>
       <td className={"border border-gray-300 px-6 py-4 text-center"}>{props.problem.name}</td>
-      <td className={"border border-gray-300 px-6 py-4 text-center"}>5</td>
+      <td className={"border border-gray-300 px-6 py-4 text-center"}>{props.problem.amount}</td>
       <td className={"border border-gray-300 px-6 py-4 text-center flex flex-row items-center justify-center"}>
         <NavLink
           className={"bg-blue-700 inline-block p-2 rounded-md hover:bg-blue-600 duration-300 mr-2"}
@@ -47,14 +47,17 @@ function RowItem(props: IProps) {
 }
 
 function ManageProblem() {
+  useEffect(() => {
+    document.title = "Quản lý bài tập";
+  }, []);
+
   const queryClient = useQueryClient();
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-  const [searchText, setSearchText] = useState<string>("");
 
   const { data: problems, isLoading } = useQuery({
-    queryKey: ["manage-problem", "problem-list", searchText],
+    queryKey: ["manage-problem", "problem-list"],
     queryFn: () => {
-      return getProblemList(searchText);
+      return getProblemsAndCount();
     }
   });
 
@@ -66,7 +69,6 @@ function ManageProblem() {
 
   const onChangeValue = (value: string | null) => {
     if (value === null) return;
-    setSearchText(value);
   };
   const openModal = () => {
     setIsOpenModal(true);
@@ -113,7 +115,7 @@ function ManageProblem() {
 
   return (
     <div className={"w-full"}>
-      <Header placeHolder={"Tìm kiếm"} isUsed={true} onChangeValue={onChangeValue} />
+      <Header placeHolder={"Tìm kiếm"} isUsed={false} onChangeValue={onChangeValue} />
 
       <div className={"mx-12 my-10"}>
         <div className={"flex flex-row items-center justify-between"}>

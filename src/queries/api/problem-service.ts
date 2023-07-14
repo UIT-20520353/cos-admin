@@ -1,6 +1,6 @@
 import { IProblemForm } from "~/types/form.type";
 import supabase from "~/queries/supabase";
-import { IProblem } from "~/types/problem.type";
+import { IOverviewProblem, IProblem } from "~/types/problem.type";
 import { PostgrestResponse } from "@supabase/supabase-js";
 
 export async function insertProblem(formData: IProblemForm): Promise<boolean> {
@@ -90,5 +90,22 @@ export async function deleteProblemById(id: number): Promise<boolean> {
   } catch (error) {
     console.error("deleteProblemById: ", error);
     return false;
+  }
+}
+
+export async function getProblemsAndCount(): Promise<IOverviewProblem[]> {
+  try {
+    const { data, error }: PostgrestResponse<IOverviewProblem> = await supabase
+      .rpc("get_problem_list_and_count")
+      .then((response) => response as PostgrestResponse<IOverviewProblem>);
+    if (error) {
+      throw error;
+    } else {
+      if (data && data.length !== 0) return data;
+      else return [];
+    }
+  } catch (error) {
+    console.error("getProblemsAndCount: ", error);
+    return [];
   }
 }
